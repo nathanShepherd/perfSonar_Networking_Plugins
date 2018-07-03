@@ -1,21 +1,19 @@
 #
-# RPM Spec for pScheduler gridftp Test
+# RPM Spec for pScheduler ftp Tool
 #
 
 #
 # Development Order #1:
 #
-# This file is significant for building the test into pScheduler.
+# This file is significant for buildling the tool into pScheduler.
 # If additional libraries or parts of pScheduler are required,
-# they should be added here after line 25.
-#
-
-%define short	gridftp
-Name:		pscheduler-test-%{short}
+# they should be added here (line 25).
+%define short	ftp
+Name:		pscheduler-tool-%{short}
 Version:	1.0.2
 Release:	1%{?dist}
 
-Summary:	gridftp test for pScheduler
+Summary:	ftp tool class for pScheduler
 BuildArch:	noarch
 License:	Apache 2.0
 Group:		Unspecified
@@ -26,36 +24,28 @@ Provides:	%{name} = %{version}-%{release}
 
 # Include all required libraries here
 Requires:	pscheduler-server
-Requires:	python-pscheduler >= 1.3
-Requires:	python-jsontemplate
+Requires:	python-pscheduler
 
 BuildRequires:	pscheduler-rpm
 
-
 %description
-gridftp test class for pScheduler
-
+ftp tool class for pScheduler
 
 %prep
 %setup -q -n %{short}-%{version}
 
-
-%define dest %{_pscheduler_test_libexec}/%{short}
+%define dest %{_pscheduler_tool_libexec}/%{short}
 
 %build
 make \
      DESTDIR=$RPM_BUILD_ROOT/%{dest} \
      install
 
-
-
 %post
 pscheduler internal warmboot
 
-
 %postun
 pscheduler internal warmboot
-
 
 %files
 %defattr(-,root,root,-)

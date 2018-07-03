@@ -2,7 +2,7 @@
 # Makefile for any test class
 #
 
-NAME=gridftp
+NAME=disk-to-disk
 
 # TODO: Everything below this should be made into a template that can
 # be included.

@@ -9,8 +9,8 @@
 
 {
     "schema": 1,
-    "name": "gridftp",
-    "description": "Transfer files via GridFTP",
+    "name": "disk-to-disk",
+    "description": "Network testing of throughput and Read/Write speeds",
     "version": "1.0",
     "maintainer": {
         "name": "perfSONAR Development Team",

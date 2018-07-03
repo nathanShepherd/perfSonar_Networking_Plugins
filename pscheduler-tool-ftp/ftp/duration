@@ -1,0 +1,52 @@
+#!/usr/bin/python
+
+#
+# Development Order #4:
+#
+# Determine the duration of a specified test.
+#
+
+#
+# TODO: This is a bare-bones, unreliable implementation that should be
+# used only for testing.
+#
+
+import datetime
+
+import pscheduler
+
+json = pscheduler.json_load(exit_on_error=True);
+log = pscheduler.Log(prefix='ftp', quiet=True)
+#%#%#%#%#%#%#%#%#%#
+duration = "PT10S"
+
+with open('./json_duration.txt', 'wb') as f:
+  f.write(str(json))
+
+log.debug('JSON %s' % str(json))
+
+'''
+#source = json['test']['spec']['source']
+#dest = json['test']['spec']['dest']
+
+s = source.split('/')[-1]
+
+if '.' in s:
+  source = s.split('.')[0]
+
+else:
+  source = s
+
+# f_s = {metric: duration_scaler}
+metrics = {'KB':3, 'MB':5, 'GB':50}
+
+#%#%#%#%#%#%#%#%#%#%#%#%
+if source[-2:] in metrics:
+  duration = source[:-2] * metrics[source[-2:]]
+'''
+timeout_iso = json.get("timeout", duration)
+timeout = pscheduler.iso8601_as_timedelta(timeout_iso)
+
+pscheduler.succeed_json({
+    "duration": pscheduler.timedelta_as_iso8601( timeout )
+    })

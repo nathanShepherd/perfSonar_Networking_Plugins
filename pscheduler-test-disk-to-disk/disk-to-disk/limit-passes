@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Checker for 'gridftp' task limits
+# Checker for 'disk-to-disk' task limits
 #
 
 import pscheduler

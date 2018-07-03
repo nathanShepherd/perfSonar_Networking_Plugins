@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Validator for 'gridftp' task limit spec
+# Validator for 'disk-to-disk' task limit spec
 #
 
 import pscheduler

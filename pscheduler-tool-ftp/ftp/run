@@ -19,21 +19,30 @@ import pscheduler
 
 # from stdin
 input = pscheduler.json_load(exit_on_error=True)
+log = pscheduler.Log(prefix='ftp', quiet=True)
 
 # Take input from test spec
 try:
     dest = input['test']['spec']['dest']
+
+    #
     source = input['test']['spec']['source']
     
-    #Depreciate dest_path?
+    # The directory to put the new copy of file
     dest_path = input['test']['spec']['dest-path']
 
 except KeyError as e:
     print(e);	pscheduler.fail('Missing data in input')
 
-duration = input['test']['spec'].get('duration', 'PT5S')
+duration = input['test']['spec'].get('duration', 'PT10S')
+
 duration = pscheduler.timedelta_as_seconds( pscheduler.iso8601_as_timedelta(duration) ) 
+
+
 timeout_iso = input['test']['spec'].get('timeout', 'PT10S')
+
+log.debug('Timeout ' + str(timeout_iso))
+
 timeout = pscheduler.timedelta_as_seconds( pscheduler.iso8601_as_timedelta(timeout_iso) )
 start_time = datetime.datetime.now()
 succeeded = False
@@ -41,17 +50,25 @@ error = ''
 diags = ''
 
 # Run the actual task here:
-
+STDERR = ""
 if True:
-  argv = ['globus-url-copy', # Implimentation of GridFTP
-          '-vb', # verbose output for test
-	  #'-p 4', # num of parrallel TCP connections
-	  source, #Source URL
-	  dest] #Destination URL + path
-          #'sshftp://localhost/home/nateshep/tmp/test.txt', # Source URL
-          #'sshftp://localhost/home/nateshep/'] # Destination URL 
-
+  # Authentication
+  argv = ['curl',
+          '-o',   # Flag to output file
+          dest,   # Download location
+	  source] # Source URL
+  
   status, stdout, stderr = pscheduler.run_program(argv, timeout=timeout)
+
+  #log.debug("%s", stderr)
+
+  lines = stderr.split('\r')
+  log.debug(str(lines))
+
+  parsed = [stat for stat in lines[-1].split(' ') if stat != '']
+  log.debug(str(parsed))
+  
+  STDERR = parsed
 
   if status:
     succeeded = False
@@ -63,15 +80,34 @@ if True:
 end_time = datetime.datetime.now()
 
 # Organize results into json data
-results = {
+final_results = {
     'succeeded': succeeded,
-    'result': {
-        'schema': 1,
-        'time': pscheduler.timedelta_as_iso8601( end_time - start_time),
-        'succeeded': succeeded
-    },
     'error': error,
     'diags': diags }
 
-pscheduler.succeed_json(results)
+results = {'schema': 1, 
+	   'succeeded': succeeded}
 
+results['time'] = pscheduler.timedelta_as_iso8601( end_time - start_time)
+
+trans_speed = STDERR[-1].split('\n')[0]
+if trans_speed[-1] == 'k':
+  #STDERR[6] = int(STDERR[6][:-1]) * 1000# Average Download Speed
+  trans_speed = int(trans_speed[:-1]) * 1000
+results['throughput'] = int(trans_speed)
+
+if STDERR[1][-1] == 'k':
+  STDERR[1] = int(STDERR[1][:-1]) * 1000
+results['bytes-sent'] = int(STDERR[1])
+
+final_results['result'] = results
+pscheduler.succeed_json(final_results)
+
+
+
+
+
+
+
+
+#?
