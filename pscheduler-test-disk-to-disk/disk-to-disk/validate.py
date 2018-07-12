@@ -21,14 +21,17 @@ def spec_is_valid(json):
                 # and should be included
                 "properties": {
                     "schema":       { "$ref": "#/pScheduler/Cardinal" },
-                    "source":       { "$ref": "#/pScheduler/String"     },
+                    "source":       { "$ref": "#/pScheduler/String"   },
                     "source-node":  { "$ref": "#/pScheduler/Host"     },
 
-                    "dest":         { "$ref": "#/pScheduler/String"     },
+                    "dest":         { "$ref": "#/pScheduler/String"   },
                     "dest-path":    { "$ref": "#/pScheduler/String"   },
-
+                    
+		    "timeout":      { "$ref": "#/pScheduler/Duration" }, 
                     "min-bandwith": { "$ref": "#/pScheduler/Cardinal" },
+                    
                     "max-size":     { "$ref": "#/pScheduler/Cardinal" },
+                    "cleanup":      { "$ref": "#/pScheduler/Boolean"  },
                 },
                 # If listed here, data of this type MUST be in the test spec
                 "required":  [

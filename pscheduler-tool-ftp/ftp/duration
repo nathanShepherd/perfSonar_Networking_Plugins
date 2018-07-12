@@ -5,48 +5,59 @@
 #
 # Determine the duration of a specified test.
 #
-
+# Dynamically determine an upper bound on the test duration
+# NOTE: Source filename must be formatted like:
+#       ["../1B.dat", "10KB.zip", "1GB", etc.]
 #
-# TODO: This is a bare-bones, unreliable implementation that should be
-# used only for testing.
-#
 
+import math
 import datetime
-
 import pscheduler
 
 json = pscheduler.json_load(exit_on_error=True);
-log = pscheduler.Log(prefix='ftp', quiet=True)
-#%#%#%#%#%#%#%#%#%#
+
+#%#%#%#%#%#%#%#%#
+# Default Duration
 duration = "PT10S"
 
-with open('./json_duration.txt', 'wb') as f:
-  f.write(str(json))
+#%#%#%#%#%#%#%#%#
 
-log.debug('JSON %s' % str(json))
+source = json[u'source']
 
-'''
-#source = json['test']['spec']['source']
-#dest = json['test']['spec']['dest']
+filename = source.split('/')[-1]
 
-s = source.split('/')[-1]
-
-if '.' in s:
-  source = s.split('.')[0]
-
+if '.' in filename:
+  source = filename.split('.')[0]
 else:
-  source = s
+  source = filename
 
-# f_s = {metric: duration_scaler}
-metrics = {'KB':3, 'MB':5, 'GB':50}
+magnitude = source[-2:]
+
+# metrics = {file_magnitude: duration_scaler, ...}
+metrics = {'KB':5, 'MB':16, 'GB':100}
 
 #%#%#%#%#%#%#%#%#%#%#%#%
+#@ Example parsing of input
+# source = "10KB"
+# duration = max(1, log(int("10"))) * metrics['KB']
+# duration = 10 * 2
+#%#%#%#%#%#%#%#%#%#%#%#%
+# TODO: 
+#	Remove int converstions, duration can handle fractional seconds
+#	remove log and scale the metrics with respect to min_bandwidth
 if source[-2:] in metrics:
-  duration = source[:-2] * metrics[source[-2:]]
-'''
+  duration = int(max(1, math.log10(int(source[:-2])))) * metrics[magnitude]
+  duration = "PT" + str(duration) + "S"
+
+with open('/tmp/duration.log', 'wb') as f:
+  f.write('TEST\n')
+  f.write(str(source))
+
 timeout_iso = json.get("timeout", duration)
 timeout = pscheduler.iso8601_as_timedelta(timeout_iso)
 
 pscheduler.succeed_json({
     "duration": pscheduler.timedelta_as_iso8601( timeout )
     })
+
+#?

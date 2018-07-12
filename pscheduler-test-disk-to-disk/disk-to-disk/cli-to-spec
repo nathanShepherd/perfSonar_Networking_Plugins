@@ -58,10 +58,9 @@ opt_parser.add_option("--duration",
                       dest="duration")
 
 opt_parser.add_option("--timeout",
-                      help="Timeout for each query attempt",
+                      help="Timeout for each query attempt (in seconds)",
                       action="store", type="string",
                       dest="timeout")
-
 
 opt_parser.add_option("--source",
                       help="Source URL",
@@ -78,6 +77,10 @@ opt_parser.add_option("--dest-path",
                       action="store", type="string",
                       dest="dest_path")
 
+opt_parser.add_option("--cleanup",
+                      help="If true then test file is deleted after transfer",
+                      action="store", type="string",
+                      dest="cleanup")
 
 (options, remaining_args) = opt_parser.parse_args(args)
 
@@ -94,6 +97,11 @@ if options.dest is not None:
 else:
   pscheduler.fail('A destination URL is required,',
                   '\'--dest localhost\'')
+
+if options.cleanup is None:
+  result['cleanup'] = True
+else:
+  result['cleanup'] = options.cleanup
 
 if options.dest_path is not None:
   result['dest-path'] = options.dest_path

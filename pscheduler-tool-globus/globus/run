@@ -45,6 +45,7 @@ diags = ''
 if True:
   argv = ['globus-url-copy', # Implimentation of GridFTP
           '-vb', # verbose output for test
+          #'-nlb', # network logging on output (must use gsiftp)
 	  #'-p 4', # num of parrallel TCP connections
 	  source, #Source URL
 	  dest] #Destination URL + path

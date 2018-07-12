@@ -28,6 +28,7 @@ result = pscheduler.speccli_build_args(spec,
         ( 'dest-path','dest-path'),
 
         ( 'source', 'source'),
+        ( 'cleanup', 'cleanup'),
         ( 'timeout', 'timeout' ),
         ( 'duration', 'duration'),
         ])
