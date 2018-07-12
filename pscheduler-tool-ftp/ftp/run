@@ -37,16 +37,12 @@ try:
 except KeyError as e:
     print(e);	pscheduler.fail('Missing data in input')
 
-#duration = input['test']['spec'].get('duration')#, 'PT10S')
-
-#duration = pscheduler.timedelta_as_seconds( pscheduler.iso8601_as_timedelta(duration) ) 
-
 
 timeout_iso = input['test']['spec'].get('timeout', 'PT10S')
 
-#log.debug('Timeout ' + str(timeout_iso))
+timeout = pscheduler.timedelta_as_seconds( \
+               pscheduler.iso8601_as_timedelta(timeout_iso))
 
-timeout = pscheduler.timedelta_as_seconds( pscheduler.iso8601_as_timedelta(timeout_iso) )
 start_time = datetime.datetime.now()
 succeeded = False
 error = ''
@@ -80,7 +76,14 @@ if True:
     # Determine how much (if any) of the file was transferred
     if os.path.isfile(dest):
       bytes_sent = os.stat(dest).st_size
-      error += '\n Bytes transfered %s'% bytes_sent
+
+      # Convert bytes to human readable format 
+      scalar = ['B', 'KB', 'MB', 'GB', 'TB']
+      while bytes_sent > 1024 and len(scalar) > 1:
+        bytes_sent /= 1024; scalar = scalar[1:]
+
+      error += '\n\nBytes Transfered: %s %s'% (int(bytes_sent), scalar[0])
+      error += '\n\nActual Timeout: %s seconds' % timeout
 
   else:
     succeeded = True
@@ -107,26 +110,13 @@ with open('/tmp/run.log', 'wb') as f:
   f.write(str(STDERR))
 
 #%#%#%#%#%#
-trans_speed = STDERR[-1].split('\n')[0]
+#STDERR[6] is Average Download Speed
 
-if trans_speed[-1] == 'k':
-  #STDERR[6] = int(STDERR[6][:-1]) * 1000# Average Download Speed
-  trans_speed = int(trans_speed[:-1]) * 1000
-
-else:# TODO: parsing for MB and greater transfers
-  trans_speed = 10
+results['throughput'] = STDERR[-1].split('\n')[0]
 
 #%#%#%#%#%#
-results['throughput'] = int(trans_speed)
 
-if STDERR[1][-1] == 'k':
-  STDERR[1] = int(STDERR[1][:-1]) * 1000
-
-elif type(STDERR) != int and STDERR[1][-1] == 'M':
-  STDERR[1] = int(STDERR[1][:-1].split('.')[0]) * 1000 * 1000
-
-#%#%#%#%#%#
-results['bytes-sent'] = int(STDERR[1])
+results['bytes-sent'] = STDERR[1]
 
 final_results['result'] = results
 pscheduler.succeed_json(final_results)

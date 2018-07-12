@@ -5,11 +5,8 @@
 #
 # Determine the duration of a specified test.
 #
-# Dynamically determine an upper bound on the test duration
-# NOTE: Source filename must be formatted like:
-#       ["../1B.dat", "10KB.zip", "1GB", etc.]
-#
 
+import math
 import datetime
 import pscheduler
 
@@ -19,33 +16,6 @@ json = pscheduler.json_load(exit_on_error=True);
 # Default Duration
 duration = "PT10S"
 
-#%#%#%#%#%#%#%#%#
-
-source = json[u'source']
-
-s = source.split('/')[-1]
-
-if '.' in s:
-  source = s.split('.')[0]
-else:
-  source = s
-
-magnitude = source[-2:]
-
-# metrics = {file_magnitude: duration_scaler, ...}
-metrics = {'KB':2, 'MB':5, 'GB':50}
-
-#%#%#%#%#%#%#%#%#%#%#%#%
-#@ Example parsing of input
-# source = "10KB"
-# duration = int("10") * metrics['KB']
-# duration = 10 * 2
-#%#%#%#%#%#%#%#%#%#%#%#%
-
-if source[-2:] in metrics:
-  duration = int(source[:-2]) * metrics[magnitude]
-  duration = "PT" + str(duration) + "S"
-
 timeout_iso = json.get("timeout", duration)
 timeout = pscheduler.iso8601_as_timedelta(timeout_iso)
 
@@ -53,8 +23,4 @@ pscheduler.succeed_json({
     "duration": pscheduler.timedelta_as_iso8601( timeout )
     })
 
-
-#with open('/tmp/json_duration.txt', 'wb') as f:
-#  f.write('TEST\n')
-#  f.write(source)
 #?

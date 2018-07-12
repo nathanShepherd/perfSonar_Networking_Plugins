@@ -5,10 +5,6 @@
 #
 # Determine the duration of a specified test.
 #
-# Dynamically determine an upper bound on the test duration
-# NOTE: Source filename must be formatted like:
-#       ["../1B.dat", "10KB.zip", "1GB", etc.]
-#
 
 import math
 import datetime
@@ -19,39 +15,6 @@ json = pscheduler.json_load(exit_on_error=True);
 #%#%#%#%#%#%#%#%#
 # Default Duration
 duration = "PT10S"
-
-#%#%#%#%#%#%#%#%#
-
-source = json[u'source']
-
-filename = source.split('/')[-1]
-
-if '.' in filename:
-  source = filename.split('.')[0]
-else:
-  source = filename
-
-magnitude = source[-2:]
-
-# metrics = {file_magnitude: duration_scaler, ...}
-metrics = {'KB':5, 'MB':16, 'GB':100}
-
-#%#%#%#%#%#%#%#%#%#%#%#%
-#@ Example parsing of input
-# source = "10KB"
-# duration = max(1, log(int("10"))) * metrics['KB']
-# duration = 10 * 2
-#%#%#%#%#%#%#%#%#%#%#%#%
-# TODO: 
-#	Remove int converstions, duration can handle fractional seconds
-#	remove log and scale the metrics with respect to min_bandwidth
-if source[-2:] in metrics:
-  duration = int(max(1, math.log10(int(source[:-2])))) * metrics[magnitude]
-  duration = "PT" + str(duration) + "S"
-
-with open('/tmp/duration.log', 'wb') as f:
-  f.write('TEST\n')
-  f.write(str(source))
 
 timeout_iso = json.get("timeout", duration)
 timeout = pscheduler.iso8601_as_timedelta(timeout_iso)
