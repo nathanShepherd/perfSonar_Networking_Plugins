@@ -48,24 +48,21 @@ succeeded = False
 error = ''
 diags = ''
 
-# Run the actual task here:
 STDERR = ""
+
+# Run the actual task here:
 if True:
-  # Authentication
+  # Execute curl command
   argv = ['curl',
           '-o',   # Flag to output file
           dest,   # Download location
 	  source] # Source URL
   
+
   status, stdout, stderr = pscheduler.run_program(argv, timeout=timeout)
 
-  #log.debug("%s", stderr)
-
   lines = stderr.split('\r')
-  log.debug(str(lines))
-
   parsed = [stat for stat in lines[-1].split(' ') if stat != '']
-  log.debug(str(parsed))
   
   STDERR = parsed
 
@@ -82,8 +79,14 @@ if True:
       while bytes_sent > 1024 and len(scalar) > 1:
         bytes_sent /= 1024; scalar = scalar[1:]
 
-      error += '\n\nBytes Transfered: %s %s'% (int(bytes_sent), scalar[0])
-      error += '\n\nActual Timeout: %s seconds' % timeout
+      # Put this into diags
+      #error += '\n\nBytes Transfered: %s %s'% (int(bytes_sent), scalar[0])
+      #error += '\n\nActual Timeout: %s seconds' % timeout
+      
+      # Getting source filesize
+      #argv = ['curl', '-s', source, '| wc -c']
+      #outs = pscheduler.run_program(argv, timeout=timeout)
+      #error += '\n\n' + str(outs)
 
   else:
     succeeded = True
@@ -105,9 +108,11 @@ results = {'schema': 1,
 
 results['time'] = pscheduler.timedelta_as_iso8601( end_time - start_time)
 
+'''# Logging
 with open('/tmp/run.log', 'wb') as f:
   f.write('LOGGING ftp/run')
   f.write(str(STDERR))
+'''
 
 #%#%#%#%#%#
 #STDERR[6] is Average Download Speed
