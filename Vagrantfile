@@ -20,6 +20,7 @@ $script = <<-SHELL
   git clone https://github.com/perfsonar/pscheduler.git --branch issue-155
   cd pscheduler
   sudo make
+  cd ..
 
   sudo systemctl stop firewalld
 
